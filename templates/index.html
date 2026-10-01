@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>URL Shortener</h1>
+
+        <form method="POST" class="shortener-form">
+            <div class="field-group">
+                <label for="url">Long URL</label>
+                <input
+                    id="url"
+                    type="url"
+                    name="url"
+                    placeholder="https://example.com"
+                    value="{{ request.form.get('url', '') }}"
+                    required
+                >
+            </div>
+
+            <button type="submit">Shorten URL</button>
+        </form>
+
+        {% if error %}
+            <p class="message error">{{ error }}</p>
+        {% endif %}
+
+        {% if short_url %}
+            <div class="result-card" id="result-card">
+                <p class="result-label">Your short URL</p>
+                <div class="result-row">
+                    <a class="short-url-field" href="{{ short_url }}" target="_blank" rel="noopener noreferrer">{{ short_url }}</a>
+                    <button type="button" class="copy-btn" data-url="{{ short_url }}">Copy</button>
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+
+    <script>
+        const resultCard = document.querySelector('#result-card');
+        if (resultCard) {
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            requestAnimationFrame(function () {
+                resultCard.scrollIntoView({
+                    behavior: prefersReducedMotion ? 'auto' : 'smooth',
+                    block: 'center'
+                });
+            });
+        }
+
+        document.querySelectorAll('.copy-btn').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const url = button.getAttribute('data-url');
+                navigator.clipboard.writeText(url).then(function () {
+                    const originalText = button.textContent;
+                    button.textContent = 'Copied!';
+                    setTimeout(function () {
+                        button.textContent = originalText;
+                    }, 1200);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
